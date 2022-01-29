@@ -7,6 +7,7 @@ const storeContainer = document.querySelector("[data-store-container]")
 const IMAGE_URL = "https://dummyimage.com/420x260/"
 
 export function setupStore() {
+  if (storeContainer == null) return
   addGlobalEventListener("click", "[data-add-to-cart-button]", e => {
     const id = e.target.closest("[data-store-item]").dataset.itemId
     addToCart(parseInt(id))
