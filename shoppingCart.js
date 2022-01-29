@@ -4,24 +4,29 @@ import addGlobalEventListener from "./util/addGlobalEventListener"
 const cartButton = document.querySelector("[data-cart-button]")
 const cartItemsWrapper = document.querySelector("[data-cart-items-wrapper]")
 let shoppingCart = []
+
+console.log(shoppingCart)
+console.log(loadCart())
 const cartItemTemplate = document.querySelector("#cart-item-template")
 const cartItemContainer = document.querySelector("[data-cart-item-container]")
 const IMAGE_URL = "https://dummyimage.com/210x130/"
 const cartQuantity = document.querySelector("[data-cart-quantity]")
 const cartTotal = document.querySelector("[data-cart-total]")
 const cart = document.querySelector("[data-cart]")
-
+const SESSION_STORAGE_KEY = "SHOPPING_CART-cart"
 export function setupShoppingCart() {
-  renderCartItems()
+  cartButton.addEventListener("click", () => {
+    cartItemsWrapper.classList.toggle("invisible")
+  })
+
   addGlobalEventListener("click", "[data-remove-from-cart-button]", e => {
     const id = parseInt(e.target.closest("[data-item]").dataset.itemId)
     removeCartItem(id)
   })
-}
+  shoppingCart = loadCart()
 
-cartButton.addEventListener("click", () => {
-  cartItemsWrapper.classList.toggle("invisible")
-})
+  renderCart()
+}
 
 export function addToCart(id) {
   const existingItem = shoppingCart.find(entry => entry.id === id)
@@ -31,6 +36,15 @@ export function addToCart(id) {
     shoppingCart.push({ id: id, quantity: 1 })
   }
   renderCart()
+  saveCart()
+}
+
+function removeCartItem(id) {
+  const existingItem = shoppingCart.find(entry => entry.id === id)
+  if (existingItem == null) return
+  shoppingCart = shoppingCart.filter(entry => entry.id !== id)
+  renderCart()
+  saveCart()
 }
 
 function renderCart() {
@@ -49,13 +63,6 @@ function hideCart() {
 
 function showCart() {
   cart.classList.remove("invisible")
-}
-
-function removeCartItem(id) {
-  const existingItem = shoppingCart.find(entry => entry.id === id)
-  if (existingItem == null) return
-  shoppingCart = shoppingCart.filter(entry => entry.id !== id)
-  renderCart()
 }
 
 function getCartItemsTotal() {
@@ -105,4 +112,13 @@ function renderCartItems() {
 
     cartItemContainer.appendChild(cartItem)
   })
+}
+
+function saveCart() {
+  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(shoppingCart))
+}
+
+function loadCart() {
+  const cart = sessionStorage.getItem(SESSION_STORAGE_KEY)
+  return JSON.parse(cart) || []
 }
